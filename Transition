@@ -1,0 +1,38 @@
+public static int executeSql(String sql,Object...objs) {
+		
+		int count = 0;
+		try(Connection conn = JdbcUtil.getConnection();
+			PreparedStatement ps = conn.prepareStatement(sql)){
+			for(int i = 0;i < objs.length;i++) {
+				ps.setObject(i+1, objs[i]);
+			}
+			count = ps.executeUpdate();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return count;
+	}
+	
+	public static <T> List<T> query(String sql,Convertor<T> convertor,Object...objs){
+		List<T> list = new ArrayList<T>();
+		try(Connection conn = JdbcUtil.getConnection();
+			PreparedStatement ps = conn.prepareStatement(sql)){
+			
+			for(int i = 0;i < objs.length;i++) {
+				ps.setObject(i+1, objs[i]);
+			}
+			
+			ResultSet rs = ps.executeQuery();
+			
+			while(rs.next()) {
+				list.add(convertor.convert(rs));
+			}
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+		
+	}
